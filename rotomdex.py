@@ -27,7 +27,7 @@ def class2name(cls):
 
 def postprocess(predictions):
     probs = predictions[0]
-    classes = numpy.argsort(probs)
+    classes = numpy.argsort(probs)[::-1]
     results = [(class2name(cls), probs[cls]) for cls in classes]
     return results
 
