@@ -1,3 +1,4 @@
 token: InsertYourTokenHere
 model: pokemon_model.h5
 word_to_index: word2idx.pkl
+metadata: metadata.pkl
