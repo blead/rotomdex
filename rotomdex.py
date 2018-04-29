@@ -26,11 +26,13 @@ def class2name(cls):
     return names[cls] if cls < len(names) else 'Unknown'
 
 def postprocess(predictions):
-    result = numpy.apply_along_axis(lambda x: max(enumerate(x), key=operator.itemgetter(1)), 1, predictions)[0]
-    print(result)
-    result = (class2name(int(result[0])), result[1])
-    print(result)
-    return result
+    probs = predictions[0]
+    classes = numpy.argsort(probs)
+    results = [(class2name(cls), probs[cls]) for cls in classes]
+    return results
+
+def format(results):
+    return '\n'.join(['{} ({} confidence)'.format(result[0], result[1]) for result in results])
 
 print('loading config')
 with open('config.yml', 'r') as f:
@@ -53,8 +55,8 @@ async def on_message(message):
     if client.user.mentioned_in(message):
         input_x = preprocess(message.content, word2idx)
         predictions = pokemon_model.predict(input_x)
-        result = postprocess(predictions)
-        await client.send_message(message.channel, '{} ({} confidence)'.format(result[0], result[1]))
+        results = postprocess(predictions)
+        await client.send_message(message.channel, format(results[:3]))
         # await client.send_message(message.channel, 'https://bulbapedia.bulbagarden.net/wiki/' + query)
 
 @client.event
