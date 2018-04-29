@@ -73,7 +73,7 @@ with open(config['metadata'], 'rb') as f:
 print('connecting to Discord')
 client = discord.Client()
 
-last_query = ''
+last_query = dict()
 
 @client.event
 async def on_message(message):
@@ -84,15 +84,15 @@ async def on_message(message):
         split_content = message.content.split(' ')
         if len(split_content) > 1:
             correct_name = split_content[1]
-            if last_query == '':
+            if message.author.id not in last_query:
                 await client.send_message(message.channel, 'ให้เราแก้อะไร จำไม่ได้แล้วอ่า ;_;')
                 return
             with open('correct_log.txt', 'a+', encoding='utf8') as f:
-                f.write('{}\t{}\n'.format(last_query, correct_name))
-            last_query = ''
+                f.write('{}\t{}\n'.format(last_query[message.author.id], correct_name))
+            last_query.pop(message.author.id)
             await client.send_message(message.channel, 'ขอบคุณนะ เราจะจำไว้ ^^')
     elif client.user.mentioned_in(message):
-        last_query = clean(message.content).strip()
+        last_query[message.author.id] = clean(message.content).strip()
         await client.send_typing(message.channel)
         input_x = preprocess(message.content, word2idx)
         predictions = pokemon_model.predict(input_x)
