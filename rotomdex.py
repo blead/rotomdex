@@ -22,9 +22,15 @@ def preprocess(message, word2idx, maxlen=1000):
     input_x = keras.preprocessing.sequence.pad_sequences(input_x, maxlen=maxlen, dtype='int32', padding='post', truncating='pre', value=0.)
     return input_x
 
+pokemon_names = ['Bulbasaur', 'Charmander', 'Squirtle', 'Pikachu', 'Meowth', 'Jigglypuff', 'Zubat', 'Onix', 'Magikarp', 'Chikorita']
+pokemon_class = {name: i for i, name in enumerate(pokemon_names)}
+
 def class2name(cls):
-    names = ['Bulbasaur', 'Charmander', 'Squirtle', 'Pikachu', 'Meowth', 'Jigglypuff', 'Zubat', 'Onix', 'Magikarp', 'Chikorita']
-    return names[cls] if cls < len(names) else 'Unknown'
+    return pokemon_names[cls] if cls < len(pokemon_names) else 'Unknown'
+
+def name2class(name):
+    name = name.capitalize()
+    return pokemon_class[name] if name in pokemon_class else -1
 
 def postprocess(predictions):
     probs = predictions[0]
@@ -67,11 +73,22 @@ with open(config['metadata'], 'rb') as f:
 print('connecting to Discord')
 client = discord.Client()
 
+last_query = ''
+
 @client.event
 async def on_message(message):
+    global last_query
     if message.author == client.user:
         return
-    if client.user.mentioned_in(message):
+    elif message.content.lower().startswith('!correct'):
+        split_content = message.content.split(' ')
+        if len(split_content) > 1:
+            correct_name = split_content[1]
+            with open('correct_log.txt', 'a+', encoding='utf8') as f:
+                f.write('{}\t{}\n'.format(last_query, correct_name))
+            await client.send_message(message.channel, 'ขอบคุณนะ เราจะจำไว้ ^^')
+    elif client.user.mentioned_in(message):
+        last_query = clean(message.content).strip()
         await client.send_typing(message.channel)
         input_x = preprocess(message.content, word2idx)
         predictions = pokemon_model.predict(input_x)
