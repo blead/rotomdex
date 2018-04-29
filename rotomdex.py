@@ -22,7 +22,7 @@ def preprocess(message, word2idx, maxlen=1000):
     return input_x
 
 def class2name(cls):
-    names = ['Pikachu', 'Bulbasaur', 'Charmander', 'Squirtle', 'Meowth', 'Jigglypuff', 'Zubat', 'Onix', 'Magikarp', 'Chikorita']
+    names = ['Bulbasaur', 'Charmander', 'Squirtle', 'Pikachu', 'Meowth', 'Jigglypuff', 'Zubat', 'Onix', 'Magikarp', 'Chikorita']
     return names[cls] if cls < len(names) else 'Unknown'
 
 def postprocess(predictions):
