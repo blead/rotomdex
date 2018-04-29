@@ -65,9 +65,8 @@ async def on_message(message):
         split_content = message.content.split(' ')
         if len(split_content) > 1:
             correct_name = split_content[1]
-            correct_id = name2class(correct_name)
             with open('correct_log.txt', 'a+', encoding='utf8') as f:
-                f.write('{}\t{}\n'.format(last_query, correct_id if correct_id > 0 else correct_name))
+                f.write('{}\t{}\n'.format(last_query, correct_name))
             await client.send_message(message.channel, 'ขอบคุณนะ เราจะจำไว้ ^^')
     elif client.user.mentioned_in(message):
         last_query = clean(message.content).strip()
